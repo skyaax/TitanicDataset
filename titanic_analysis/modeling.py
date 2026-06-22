@@ -4,6 +4,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import StratifiedKFold, train_test_split
 
+from xgboost import XGBClassifier
+
 from .config import FEATURES
 from .data import prepare_test_data, prepare_training_data
 
@@ -19,6 +21,10 @@ def build_random_forest_model():
 
 def build_logistic_regression_model():
     return LogisticRegression(solver="lbfgs", C=0.5)
+
+
+def build_boost_model():
+    return XGBClassifier(n_estimators=100, learning_rate=0.01,random_state=42)
 
 
 def prepare_train_validation_split(train_df, validation_df):
@@ -74,6 +80,13 @@ def evaluate_models(df):
     model2_accuracy = accuracy_score(test_y, y2_pred)
     model2_score = cross_validate_without_leakage(build_logistic_regression_model, df)
 
+
+    model3 = build_boost_model()
+    model3.fit(train_X, train_y, eval_set=[(test_X, test_y)], verbose=False)
+    y3_pred = model3.predict(test_X)
+    model3_accuracy = accuracy_score(test_y, y3_pred)
+    model3_score = cross_validate_without_leakage(build_boost_model, df)
+
     return {
         "df": df,
         "model1": model1,
@@ -82,6 +95,8 @@ def evaluate_models(df):
         "model2": model2,
         "model2_accuracy": model2_accuracy,
         "model2_score": model2_score,
+        "model3_accuracy": model3_accuracy,
+        "model3_score": model3_score,
     }
 
 
@@ -89,9 +104,13 @@ def choose_final_model(results):
     prepared_df, age_means = prepare_training_data(results["df"])
     X = prepared_df[FEATURES]
     y = prepared_df["Survived"]
-
+    '''''
     model_final = build_random_forest_model()
     if results["model2_score"].mean() > results["model1_score"].mean():
         model_final = build_logistic_regression_model()
     model_final.fit(X, y)
+    '''
+    model_final = build_boost_model()
+    model_final.fit(X, y)
+
     return model_final, age_means

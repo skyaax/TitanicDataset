@@ -28,7 +28,7 @@ def fill_age_by_class(df, age_means):
 
 def encode_sex(df):
     prepared_df = df.copy()
-    prepared_df["Sex"] = prepared_df["Sex"].replace(SEX_MAPPING)
+    prepared_df["Sex"] = prepared_df["Sex"].map(SEX_MAPPING).astype(int)
     return prepared_df
 
 

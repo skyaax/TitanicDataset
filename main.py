@@ -1,4 +1,4 @@
-from titanic_analysis.data import load_test_data, load_training_data, prepare_test_data
+from titanic_analysis.data import load_test_data, load_training_data, prepare_test_data, prepare_training_data
 from titanic_analysis.modeling import choose_final_model, evaluate_models
 from titanic_analysis.submission import build_submission, save_submission
 
@@ -11,8 +11,11 @@ def main():
     print(results["model1_score"])
     print(results["model2_accuracy"])
     print(results["model2_score"])
+    print(results["model3_accuracy"])
+    print(results["model3_score"])
 
     model_final, age_means = choose_final_model(results)
+
     titanic_df_test = load_test_data()
     titanic_df_test = prepare_test_data(titanic_df_test, titanic_df, age_means)
     submission = build_submission(model_final, titanic_df_test)
